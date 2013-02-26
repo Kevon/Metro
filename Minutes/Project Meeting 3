@@ -1,0 +1,5 @@
+Last week we expanded the board to the new size, created all the new tile classes, and modified all the classes to use the new setup.
+
+We fixed the text UI for the new board layout and set it up to accept different number of players and properly assign stations. Once we fix a few little things to get everything to work with the new setup, we will create the GUI.
+
+We still need to implement the save game feature and the GUI features. 

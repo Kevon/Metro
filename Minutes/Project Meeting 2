@@ -1,0 +1,12 @@
+Got Done:
+	Writing the tile class and the board class
+
+Need to:
+	Make sure the board can't make illegal moves
+	Over-arcing "Game" Class
+	Player Class
+	Station Class
+	Need to write tests for those three classes, then write the classes
+	Then do the GUI, which will be an extra functionality of the "Game" class
+	
+	Meet to program on Friday and Monday after class, maybe next Wednesday after class if time requires it

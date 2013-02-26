@@ -1,0 +1,39 @@
+Metting 1, 3/21/2012
+
+Future meetings will be after lecture on Mondays and Fridays and on weekends as neccessary
+
+Planned Classes:
+  
+  Board
+    
+    private class Space (the 16 spaces on the board)
+    
+      in charge of a Tile
+    
+    somehow in charge of its input/output edges, perhaps with another private class
+
+  Tile
+    
+    possible private class Edge, depending upon how Tile gets implemented
+
+  Tile Stack
+    
+    Stack based list to draw tiles from for play
+
+  Output
+    
+    in charge of printing out all necessary info for players.  Therefore most classes will have accessor methods.
+
+  Player
+
+    keeps track of score
+
+One of the classes should keep track of the turn, perhaps Board, not sure yet
+
+Next Meeting:
+
+  Friday, 3/23/2012
+
+  Look at classes and their required methods, write tests.
+  
+    focus on Board and Tile methods/tests, esp interactions between Board, Space, and Tile  

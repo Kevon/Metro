@@ -1,0 +1,232 @@
+package code;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Scanner;
+import java.util.Stack;
+
+
+public class Game {
+	
+	Scanner _consoleReader;
+	public Stack<Tile> _tileStack;
+	LinkedList<Station> _stationList;
+	public Board _board;
+	public int _player1;
+	public int _player2;
+	public int _currentPlayer;
+	public Tile _currentTile;
+	TextGUI _GUI;
+	boolean _infWhile;
+	
+	public Game(boolean b){
+		_infWhile = b;
+		_consoleReader = new Scanner(System.in);
+		_stationList = new LinkedList<Station>();
+		setUpStations();
+		_currentPlayer = 1;
+		_board = new Board();
+		_player1 = 0;
+		_player2 = 0;
+		_tileStack = new Stack<Tile>();
+		_GUI = new TextGUI(_board);
+		
+		for(int i = 0 ; i<4 ; i++){
+			_tileStack.push(new TileA(_board));
+		}
+		for(int i = 0 ; i<4 ; i++){
+			_tileStack.push(new TileB(_board));
+		}
+		for(int i = 0 ; i<4 ; i++){
+			_tileStack.push(new TileC(_board));
+		}
+		for(int i = 0 ; i<4 ; i++){
+			_tileStack.push(new TileD(_board));
+		}
+		
+		Collections.shuffle(_tileStack);
+		_currentTile = _tileStack.pop();
+		
+		
+		_GUI.displayPlayer(_currentPlayer);
+		_GUI.displayScore(_player1, _player2);
+		_GUI.displayBoard();
+		if(_currentTile!=null){
+			_GUI.displayTile(_currentTile);
+		}
+		String command;
+		while(_infWhile){
+			command = _consoleReader.nextLine();
+			if(command.equals("commit")){
+				if(commit()){
+					_GUI.commit();
+					_GUI.displayPlayer(_currentPlayer);
+					_GUI.displayScore(_player1, _player2);
+					_GUI.displayBoard();
+					if(_currentTile!=null){
+						_GUI.displayTile(_currentTile);
+					}
+					else{
+						_GUI.declareWinner(_player1, _player2);
+					}
+				}
+			}
+			else if(command.equals("remove")){
+				_GUI.remove();
+				remove();
+			}
+			else if(command.length()==11 && command.charAt(0)=='p' && command.charAt(1)=='l' && command.charAt(2)=='a' && command.charAt(3)=='c' && command.charAt(4)=='e' && command.charAt(5)=='(' && command.charAt(10)==')'){
+				int x = Character.getNumericValue(command.charAt(6));
+				int y = Character.getNumericValue(command.charAt(9));
+				try{
+					_GUI.placeTile(x, y, _currentTile);
+					place(x,y);
+				}
+				catch(ArrayIndexOutOfBoundsException e){
+					_GUI.remove();
+					System.out.println("You can't place a tile there!");
+				}
+				
+			}
+			else if(command.equals("display score")){
+				_GUI.displayScore(_player1, _player2);
+			}
+			else if(command.equals("display tile")){
+				_GUI.displayTile(_currentTile);
+			}
+			else if(command.equals("resign")){
+				if(_currentPlayer == 1){
+					_player1 = 0;
+				}
+				else{_player2 = 0;}
+				_GUI.resign(_currentPlayer);
+				_GUI.displayScore(_player1, _player2);
+				System.exit(0);
+			}
+			else if(command.equals("display player")){
+				_GUI.displayPlayer(_currentPlayer);
+			}
+			else if(command.equals("display board")){
+				_GUI.displayBoard();
+			}
+			else{
+				System.err.println("I'm sorry, I didn't quite catch that. Try again!");
+			}
+		}
+	} 
+	
+	
+	/*
+	 * This sets up the stations around the edge of the board such that every other one belongs to a different player
+	 */
+	public void setUpStations(){
+		
+		int playerCheck = 1;
+		int stationPlayer;
+		for(int x = 1 ; x<5 ; x++){
+			if (playerCheck % 2 == 0){
+				stationPlayer = 1;
+			}
+			else{stationPlayer = 2;}
+			_stationList.add(new Station(stationPlayer,x,1,0));
+			playerCheck= playerCheck+1;
+		}
+		for(int y = 1 ; y<5 ; y++){
+			if (playerCheck % 2 == 0){
+				stationPlayer = 1;
+			}
+			else{stationPlayer = 2;}
+			_stationList.add(new Station(stationPlayer, 4,y,2));
+			playerCheck= playerCheck+1;
+		}
+		for(int x = 4 ; x>0 ; x--){
+			if (playerCheck % 2 == 0){
+				stationPlayer = 1;
+			}
+			else{stationPlayer = 2;}
+			_stationList.add(new Station(stationPlayer, x,4,4));
+			playerCheck= playerCheck+1;
+		}
+		for(int y = 4 ; y>0 ; y--){
+			if (playerCheck % 2 == 0){
+				stationPlayer = 1;
+			}
+			else{stationPlayer = 2;}
+			_stationList.add(new Station(stationPlayer, 1,y,6));
+			playerCheck= playerCheck+1;
+		}
+	}
+	
+	/*
+	 * This is the method called when the player inputs commit
+	 * First it checks to make sure the current tile placement is legal
+	 * If so, for each of the stations, if they have not yet been completed, it checks to see how many points they return, which in most cases will be zero
+	 * If a station was completed and did return points, the playe that the station belongs to is given those points and the station is then considered "complete" which means it will not return points anymore durring the game
+	 */
+	public boolean commit(){
+		
+		if(_board.checkLegalTile()){
+			
+			for(Station s : _stationList){
+				if(!s.checkComplete()){
+					int player = s.getPlayer();
+					int points = _board.checkConnection(s.getX(),s.getY(),s.getAry(),0);
+					if(player == 1){
+						_player1 = _player1 + points;
+					}
+					else{
+						_player2 = _player2 + points;
+					}
+					if(points>0){
+						s.complete();
+					}
+				}
+				else{
+					
+				}
+			}
+			_board.commit();
+			if(_currentPlayer == 1){
+				_currentPlayer = 2;
+			}
+			else{
+				_currentPlayer = 1;
+			}
+			if(_tileStack.size()>0){
+			_currentTile = _tileStack.pop();
+			}
+			return true;
+		}
+		else{
+			System.out.println("You have made an illegal tile placement!");
+			return false;
+		}
+		
+	}
+	
+	public void place (int x, int y){
+		if(_currentTile != null){
+			if(_board.placeTile(x, y, _currentTile)){
+				_currentTile = null;
+			}
+			
+		}
+		else{
+			System.out.println("A tile has already been placed!");
+		}
+	}
+	
+	/*
+	 * removes the tile that was currently placed if and only if a tile has already been placed
+	 * passes the remove command onto board
+	 */
+	public void remove(){
+		if(_currentTile==null){
+			_currentTile = _board.remove();
+		}
+		else{
+			System.out.println("You haven't placed a tile yet!");
+		}
+	}
+
+}
